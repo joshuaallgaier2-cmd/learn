@@ -508,6 +508,22 @@ function client(BOOT) {
   }
 }
 
+// A miss should not cost a crawler the whole shell. The full page is about 32 KB
+// because of the stylesheet, fonts and inline icon; this one is a few hundred bytes.
+export function notFoundPage() {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page not found - Flisk Learn</title>
+<meta name="robots" content="noindex">
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#000;color:#EDEDEE;font:15px/1.55 system-ui,-apple-system,'Segoe UI',sans-serif;text-align:center}h1{font-size:1.25rem;margin:0 0 .5rem}p{color:#8D8D92;margin:0 0 1rem}a{color:#EDEDEE}</style>
+</head>
+<body><main><h1>Page not found</h1><p>There is nothing at this address.</p><a href="/">Go to Flisk Learn</a></main></body>
+</html>`;
+}
+
 export function page({ mode = 'learn', lab = null, login = '', model = false, computers = false, notice = '' } = {}) {
   const boot = { mode, lab: lab?.id || null, login, model, computers, parts: PARTS.map((p) => ({ id: p.id, labs: p.labs })), labs: Object.fromEntries(LAB_CARDS.map((l) => [l.id, { id: l.id, steps: l.steps }])) };
   const title = lab ? `${lab.title} · Flisk Learn` : `${MODES[mode].label} · Flisk Learn`;

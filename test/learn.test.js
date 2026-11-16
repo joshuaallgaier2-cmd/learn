@@ -129,6 +129,18 @@ describe('pages', () => {
   test('unknown pages and labs are 404', async () => {
     for (const path of ['/nope', '/practice/no-such-lab', '/learn/extra', `/practice/${LAB}/more`, '/practice/__proto__']) expect((await get(path)).status).toBe(404);
   });
+  test('the 404 page is small, links home and keeps noindex', async () => {
+    for (const path of ['/nope', '/practice/no-such-lab']) {
+      const res = await get(path);
+      expect(res.status).toBe(404);
+      const body = await res.text();
+      expect(body.length).toBeLessThan(4096);
+      expect(body).toContain('<meta name="robots" content="noindex">');
+      expect(body).toContain('<a href="/">Go to Flisk Learn</a>');
+      expect(body).not.toContain('src="data:');
+      expect(body).not.toContain('<script');
+    }
+  });
   test('a visitor is asked to sign in on a lab; a signed-in learner gets the open button', async () => {
     expect(await (await get(`/practice/${LAB}`)).text()).toContain('href="/auth/login">Sign in with GitHub</a>');
     const text = await (await get(`/practice/${LAB}`, baseEnv, { cookie: await signedIn() })).text();

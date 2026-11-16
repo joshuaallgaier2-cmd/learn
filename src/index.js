@@ -6,7 +6,7 @@ import { githubAuthorizeUrl, githubLogin } from './auth.js';
 import { answerMessages, askModel, finishAnswer, MAX_QUESTION, passagesFor, takeToday } from './answer.js';
 import { fleetClient } from './fleet.js';
 import { inLabDir, labById, labDir, labsFor, safeFile, stepOf } from './labs.js';
-import { page, PROVIDERS } from './page.js';
+import { notFoundPage, page, PROVIDERS } from './page.js';
 import { clearSession, makeSession, readSession, sameOrigin } from './session.js';
 
 const MODES = ['learn', 'practice', 'exam'];
@@ -160,9 +160,9 @@ export async function handle(request, env, { fetchImpl = fetch, cache = globalTh
     const mode = path === '/' ? 'learn' : first;
     const session = env.DEV_LOGIN ? { login: env.DEV_LOGIN } : await readSession(env, request);
     const seen = { login: session?.login || '', model: modelOn(env), computers: Boolean(env.FLEET_SERVICE_SECRET) };
-    if (!MODES.includes(mode) || extra !== undefined || (second !== undefined && mode !== 'practice')) return html(page({ ...seen, mode: 'learn', notice: 'That page does not exist.' }), 404);
+    if (!MODES.includes(mode) || extra !== undefined || (second !== undefined && mode !== 'practice')) return html(notFoundPage(), 404);
     const lab = second === undefined ? null : labById(second);
-    if (second !== undefined && !lab) return html(page({ ...seen, mode: 'practice', notice: 'That lab does not exist.' }), 404);
+    if (second !== undefined && !lab) return html(notFoundPage(), 404);
     return html(page({ ...seen, mode, lab }));
   }
 
